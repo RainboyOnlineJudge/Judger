@@ -10,8 +10,9 @@ set(CMAKE_C_FLAGS "${BASE_CMAKE_C_FLAGS}")
 
 # make judger lib
 file(GLOB SOURCE "src/*.c" "src/rules/*.c")
-add_library(judger SHARED ${SOURCE})
-target_link_libraries(judger pthread seccomp)
+#add_library(judger SHARED ${SOURCE})
+add_executable(qjudge ${SOURCE})
+target_link_libraries(qjudge pthread seccomp)
 
 
-install(DIRECTORY output/ DESTINATION /usr/lib/judger)
+#install(DIRECTORY output/ DESTINATION /usr/lib/judger)
