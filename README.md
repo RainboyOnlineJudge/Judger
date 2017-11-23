@@ -7,3 +7,11 @@ Judger for OnlineJudge
 ## 说明
 
 `rainboy`在原`Judger`的基础上的魔改版本
+
+
+## 安装
+
+```
+sudo apt-get install libseccomp-dev
+mkdir build && cd build && cmake .. && make && sudo make install
+```

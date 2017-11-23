@@ -13,6 +13,16 @@ char _env[255][255]={0};
 
 char default_seccomp[2][10]={"c_cpp","general"};
 
+char _result_msg[][30] = {
+    "WRONG_ANSWER",
+    "ACCEPT",
+    "CPU_TIME_LIMIT_EXCEEDED",
+    "REAL_TIME_LIMIT_EXCEEDED",
+    "MEMORY_LIMIT_EXCEEDED",
+    "RUNTIME_ERROR",
+    "SYSTEM_ERROR",
+};
+
 // judge 参数
 struct config judge_config;
 
@@ -35,6 +45,8 @@ struct _args_stat {
     bool is_set_sec;
     bool is_set_gid;
     bool is_set_uid;
+    bool is_set_moreinfo;
+    bool is_set_debug;
 }args_stat;
 
 /* ------------------  argp  ------------------------ */
@@ -61,6 +73,8 @@ struct argp_option argp_parse_opts[]= {
     {"sec",   'S',  "SECCOMP_RULE_NAME",  0, "set seccomp_rule_name",           14},
     {"gid",   'g',  "GID",                0, "set gid",                         15},
     {"uid",   'u',  "UID",                0, "set uid",                         16},
+    {"inf",   501,  0,                    0, "print more info of result",       17},
+    {"debug", 502,  0,                    0, "show more debug message",         18},
     {0},        //结束
 };
 
@@ -171,6 +185,12 @@ error_t arg_parser(int key, char *arg,struct argp_state *state){
             jconfig->uid = atoi(arg);
             args_stat.is_set_uid= 1;
             break;
+        case 501:
+            args_stat.is_set_moreinfo = 1;
+            break;
+        case 502:
+            args_stat.is_set_debug= 1;
+            break;
         default:
             return ARGP_ERR_UNKNOWN;
     }
@@ -194,7 +214,7 @@ void parse_args(int argc,char **argv){
 
     if(judge_config.max_real_time == 0 ||judge_config.max_real_time == -1)
         judge_config.max_real_time = 2*judge_config.max_cpu_time;
-    
+
     //checker must to set
     if(( args_stat.is_set_ct|| args_stat.is_set_rt|| args_stat.is_set_ml|| args_stat.is_set_sl|| args_stat.is_set_pn|| args_stat.is_set_ol|| args_stat.is_set_exe|| args_stat.is_set_in|| args_stat.is_set_out|| args_stat.is_set_err|| args_stat.is_set_arg|| args_stat.is_set_env|| args_stat.is_set_log|| args_stat.is_set_sec|| args_stat.is_set_gid|| args_stat.is_set_uid) == 0) {
         fprintf(stderr,"you must set args,try --help\n");
@@ -202,10 +222,67 @@ void parse_args(int argc,char **argv){
     }
 }
 
+/* --------------debug -------------------- */
+void print_config(){
+    fprintf(stderr,"max_cpu_time %d\n", judge_config.max_cpu_time                          );
+    fprintf(stderr,"max_real_time %d\n", judge_config.max_real_time                         );
+    fprintf(stderr,"max_memory %ld\n", judge_config.max_memory                            );
+    fprintf(stderr,"max_stack %ld\n", judge_config.max_stack                             );
+    fprintf(stderr,"max_process_number %d\n", judge_config.max_process_number                    );
+    fprintf(stderr,"max_output_size %ld\n", judge_config.max_output_size                       );
+    fprintf(stderr,"exe_path %s\n", judge_config.exe_path                             );
+    fprintf(stderr,"input_path %s\n", judge_config.input_path                           );
+    fprintf(stderr,"output_path %s\n", judge_config.output_path                          );
+    fprintf(stderr,"error_path %s\n", judge_config.error_path                           );
+    int i;
+
+    fprintf(stderr,"__args__:\n");
+    for(i=0;i<ARGS_MAX_NUMBER;i++){
+        if( judge_config.args[i] != 0)
+            fprintf(stderr,"\t%s\n", judge_config.args[i]);
+        else
+            break;
+    }
+    fprintf(stderr,"__env__:\n");
+    for(i=0;i<ENV_MAX_NUMBER;i++){
+        if( judge_config.env[i] != 0)
+            fprintf(stderr,"\t%s\n", judge_config.env[i]);
+        else
+            break;
+    }
+
+    fprintf(stderr,"log_path %s\n", judge_config.log_path                             );
+    fprintf(stderr,"seccomp_rule_name %s\n", judge_config.seccomp_rule_name                    );
+    fprintf(stderr,"uid %d\n", judge_config.uid                                   );
+    fprintf(stderr,"gid %d\n", judge_config.gid                                   );
+}
+/* --------------debug end -------------------- */
+
 
 int main(int argc,char **argv){
     init_config();
     parse_args(argc,argv);
+    if( args_stat.is_set_debug)
+        print_config();
     run(&judge_config,&_result);
+
+    //输出result
+    if(args_stat.is_set_moreinfo)
+    printf("result: %s\ncpu_time(ms): %d\nreal_time(ms): %d\nmemory(kb): %ld\nsignal: %d\nerror: %d\nexit_code: %d\n",
+          _result_msg[  _result.result+1],
+            _result.cpu_time,
+            _result.real_time,
+            _result.memory / 1024,
+            _result.signal,
+            _result.error,
+            _result.exit_code);
+    else
+    printf("%d %d %d %ld %d %d %d",_result.result,
+            _result.cpu_time,
+            _result.real_time,
+            _result.memory / 1024,
+            _result.signal,
+            _result.error,
+            _result.exit_code);
     return 0;
 }
