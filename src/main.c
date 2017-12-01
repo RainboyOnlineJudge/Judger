@@ -57,12 +57,12 @@ char doc[]= "all doc";
 
 struct argp_option argp_parse_opts[]= {
     //长名,短名,     "arg名",            flag,                 doc,     group
-    {"ct",    't',  "MAX_CPU_TIME",       0, "set max_cpu_time(in second)",     1},
-    {"rt",    'T',  "MAX_REAL_TIME",      0, "set max_real_time(in second)",    2},
-    {"ml",    'm',  "MAX_MEMORY",         0, "set max_memory(in mb)",           3},
-    {"sl",    's',  "MAX_STACK",          0, "set max_stack(in mb)",            4},
+    {"ct",    't',  "MAX_CPU_TIME",       0, "set max_cpu_time(in ms)",     1},
+    {"rt",    'T',  "MAX_REAL_TIME",      0, "set max_real_time(in ms)",    2},
+    {"ml",    'm',  "MAX_MEMORY",         0, "set max_memory(in byte)",           3},
+    {"sl",    's',  "MAX_STACK",          0, "set max_stack(in byte)",            4},
     {"pn",    'p',  "MAX_PROCESS_NUMBER", 0, "set max_process_number",          5},
-    {"ol",    'O',  "MAX_OUTPUT_SIZE",    0, "set max_output_size(in mb)",      6},
+    {"ol",    'O',  "MAX_OUTPUT_SIZE",    0, "set max_output_size(in byte)",      6},
     {"exe",   'E',  "EXE_PATH",           0, "set exe_path",                    7},
     {"in",    'i',  "INPUT_PATH",         0, "set input_path",                  8},
     {"out",   'o',  "OUTPUT_PATH",        0, "set output_path",                 9},
@@ -87,19 +87,19 @@ error_t arg_parser(int key, char *arg,struct argp_state *state){
     int len;
     switch(key){
         case 't':
-            jconfig->max_cpu_time = atoi(arg) * 1000;
+            jconfig->max_cpu_time = atoi(arg);
             args_stat.is_set_ct = 1;
             break;
         case 'T':
-            jconfig->max_real_time= atoi(arg)*1000;
+            jconfig->max_real_time= atoi(arg);
             args_stat.is_set_rt = 1;
             break;
         case 'm':
-            jconfig->max_memory = atoi(arg)*1024*1024; //byte
+            jconfig->max_memory = atoi(arg); //byte
             args_stat.is_set_ml = 1;
             break;
         case 's':
-            jconfig->max_stack = atoi(arg)*1024*1024; //byte
+            jconfig->max_stack = atol(arg); //byte
             args_stat.is_set_sl = 1;
             break;
         case 'p':
@@ -107,7 +107,7 @@ error_t arg_parser(int key, char *arg,struct argp_state *state){
             args_stat.is_set_pn = 1;
             break;
         case 'O':
-            jconfig->max_output_size = atoi(arg)*1024*1024;
+            jconfig->max_output_size = atol(arg);
             args_stat.is_set_ol=1;
             break;
         case 'E':
@@ -134,12 +134,12 @@ error_t arg_parser(int key, char *arg,struct argp_state *state){
                 if(arg[j] != ',')
                     _args[i][idx++] = arg[j];
                 else{
-                    jconfig->args[i] = _args[i];
+                    jconfig->args[i+1] = _args[i];
                     i++;
                     idx=0;
                 }
             }
-            jconfig->args[i] = _args[i];
+            jconfig->args[i+1] = _args[i];
             args_stat.is_set_arg = 1;
             break;
         case 'v':
@@ -212,8 +212,10 @@ void init_config(){
 void parse_args(int argc,char **argv){
     argp_parse(&_argp_,argc,argv,ARGP_NO_ARGS | ARGP_IN_ORDER, 0, &judge_config);
 
-    if(judge_config.max_real_time == 0 ||judge_config.max_real_time == -1)
-        judge_config.max_real_time = 2*judge_config.max_cpu_time;
+    if(judge_config.max_real_time == 0 )
+        judge_config.max_real_time = 2*judge_config.max_cpu_time <=0?-1:2*judge_config.max_cpu_time;
+
+    judge_config.args[0] = judge_config.exe_path;
 
     //checker must to set
     if(( args_stat.is_set_ct|| args_stat.is_set_rt|| args_stat.is_set_ml|| args_stat.is_set_sl|| args_stat.is_set_pn|| args_stat.is_set_ol|| args_stat.is_set_exe|| args_stat.is_set_in|| args_stat.is_set_out|| args_stat.is_set_err|| args_stat.is_set_arg|| args_stat.is_set_env|| args_stat.is_set_log|| args_stat.is_set_sec|| args_stat.is_set_gid|| args_stat.is_set_uid) == 0) {
@@ -268,11 +270,11 @@ int main(int argc,char **argv){
 
     //输出result
     if(args_stat.is_set_moreinfo)
-    printf("result: %s\ncpu_time(ms): %d\nreal_time(ms): %d\nmemory(kb): %ld\nsignal: %d\nerror: %d\nexit_code: %d\n",
+    printf("result: %s\ncpu_time(ms): %d\nreal_time(ms): %d\nmemory(byte): %ld\nsignal: %d\nerror: %d\nexit_code: %d\n",
           _result_msg[  _result.result+1],
             _result.cpu_time,
             _result.real_time,
-            _result.memory / 1024,
+            _result.memory,
             _result.signal,
             _result.error,
             _result.exit_code);
@@ -280,7 +282,7 @@ int main(int argc,char **argv){
     printf("%d %d %d %ld %d %d %d",_result.result,
             _result.cpu_time,
             _result.real_time,
-            _result.memory / 1024,
+            _result.memory,
             _result.signal,
             _result.error,
             _result.exit_code);
