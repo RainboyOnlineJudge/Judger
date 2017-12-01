@@ -14,7 +14,7 @@ ret = _judger.run(max_cpu_time=1000,
                   # five args above can be _judger.UNLIMITED
                   exe_path="main",
                   input_path="1.in",
-                  output_path="/dev/stdout",
+                  output_path="out",
                   error_path="/dev/stderr",
                   args=[],
                   # can be empty list
