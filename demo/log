@@ -1,9 +1,0 @@
-FATAL [2017-11-22 09:16:02] [/home/dc2-user/Judger/src/runner.c:49]Error: INVALID_CONFIG
-FATAL [2017-11-22 09:30:56] [/home/dc2-user/Judger/src/runner.c:49]Error: INVALID_CONFIG
-FATAL [2017-11-22 09:35:28] [/home/dc2-user/Judger/src/runner.c:49]Error: INVALID_CONFIG
-FATAL [2017-11-22 23:43:30] [/home/dc2-user/Judger/src/runner.c:39]Error: ROOT_REQUIRED
-FATAL [2017-11-23 00:15:47] [/home/dc2-user/Judger/src/runner.c:49]Error: INVALID_CONFIG
-FATAL [2017-11-23 00:19:00] [/home/dc2-user/Judger/src/runner.c:39]Error: ROOT_REQUIRED
-FATAL [2017-11-23 00:19:07] [/home/dc2-user/Judger/src/runner.c:49]Error: INVALID_CONFIG
-FATAL [2017-11-23 00:19:34] [/home/dc2-user/Judger/src/runner.c:49]Error: INVALID_CONFIG
-FATAL [2017-11-23 00:19:50] [/home/dc2-user/Judger/src/runner.c:49]Error: INVALID_CONFIG
