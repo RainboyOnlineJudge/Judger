@@ -8,3 +8,4 @@ __pycache__
 *.pyc
 cmake-build-debug/
 output/
+demo/demo_test*/
