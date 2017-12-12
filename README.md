@@ -50,3 +50,48 @@ ret = _judger.run(max_cpu_time=1000,
                   debug=False       # 运行时候 输出debug 信息
                   )
 ```
+
+## 返回值
+
+```
+{
+    'result':    运行结果,
+    'cpu_time':  运行时间 ms
+    'real_time': 真实时间 ms
+    'memory':    占用内存 byte
+    'signal':    退出信号
+    'exit_code': 退出码
+    'error':     错误码
+}
+```
+
+`result`的含义
+
+```
+WRONG_ANSWER (judger module will never return this value, it's used for awswer checker)
+SUCCESS = 0 (this only means the process exited normally)
+CPU_TIME_LIMIT_EXCEEDED = 1
+REAL_TIME_LIMIT_EXCEEDED = 2
+MEMORY_LIMIT_EXCEEDED = 3
+RUNTIME_ERROR = 4
+SYSTEM_ERROR = 5
+```
+
+
+
+`error`的含义
+
+```
+SUCCESS = 0
+INVALID_CONFIG = -1
+FORK_FAILED = -2
+PTHREAD_FAILED = -3
+WAIT_FAILED = -4
+ROOT_REQUIRED = -5
+LOAD_SECCOMP_FAILED = -6
+SETRLIMIT_FAILED = -7
+DUP2_FAILED = -8
+SETUID_FAILED = -9
+EXECVE_FAILED = -10
+SPJ_ERROR = -11 (judger module will never return this value, it's used for awswer checker)')
+```
